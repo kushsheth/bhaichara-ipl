@@ -168,17 +168,12 @@ function isSamePlayer(a, b) {
 }
 
 async function fetchMatch(url) {
-  const proxies = [
-    "https://api.allorigins.win/raw?url=",
-    "https://corsproxy.io/?",
-  ];
-
   let html = null;
-  for (let proxy of proxies) {
-    try {
-      let res = await fetch(proxy + encodeURIComponent(url));
-      if (res.ok) { html = await res.text(); break; }
-    } catch(e) { continue; }
+  try {
+    let res = await fetch("https://overpowering-stephania-unbranded.ngrok-free.dev/fetch?url=" + encodeURIComponent(url), {headers: {"ngrok-skip-browser-warning": "true"}});
+    if (res.ok) html = await res.text();
+  } catch(e) {
+    console.error("Proxy error:", e);
   }
 
   if (!html) return {};
