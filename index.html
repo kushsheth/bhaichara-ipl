@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bhaichara IPL</title>
+
+<style>
+body {
+  font-family: Arial;
+  background: linear-gradient(135deg,#020617,#020617,#020617,#020617,#0f172a);
+  color:white;
+  padding:15px;
+}
+
+h2 {
+  text-align:center;
+  font-size:28px;
+  margin-bottom:20px;
+}
+
+.tabs { display:flex; gap:10px; margin:15px 0; }
+.tab {
+  flex:1;
+  padding:12px;
+  text-align:center;
+  background:#1e293b;
+  border-radius:12px;
+  font-size:18px;
+  cursor:pointer;
+}
+.active {
+  background: linear-gradient(135deg,#3b82f6,#6366f1);
+}
+
+.card {
+  background: linear-gradient(135deg,#1e293b,#0f172a);
+  padding:15px;
+  margin:12px 0;
+  border-radius:16px;
+}
+
+table {
+  width:100%;
+  margin-top:10px;
+  font-size:12px;
+  border-collapse:collapse;
+}
+th, td { padding:6px; text-align:left; }
+tr:nth-child(even){ background:#020617; }
+
+button {
+  width:100%;
+  padding:14px;
+  border-radius:14px;
+  border:none;
+  background: linear-gradient(135deg,#3b82f6,#6366f1);
+  color:white;
+  font-size:16px;
+}
+</style>
+</head>
+
+<body>
+
+<h2>🏏 Bhaichara IPL</h2>
+<button onclick="load()">🔄 Update</button>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('leader')">🏆</div>
+  <div class="tab" onclick="switchTab('matches')">📊</div>
+</div>
+
+<div id="content"></div>
+
+<script>
+
+// ================= TEAMS =================
+const teams = {
+  SANKET: ["Sanju Samson","Quinton de Kock","Rajat Patidar","Ravindra Jadeja","Heinrich Klaasen","Mitchell Marsh","Angkrish Raghuvanshi","Ajinkya Rahane","Kuldeep Yadav","Nicholas Pooran","Prabhsimran Singh","Ravi Sai Kishore"],
+  HARSHIT: ["Riyan Parag","Tilak Varma","Devdutt Padikkal","Krunal Pandya","Deepak Chahar","Tristan Stubbs","Jos Buttler","Abhishek Sharma","Aiden Markram","Vaibhav Suryavanshi","Harshal Patel","Marco Jansen"],
+  RAJ: ["Jasprit Bumrah","KL Rahul","Shubman Gill","Mohammed Shami","Marcus Stoinis","Ruturaj Gaikwad","Phil Salt","Shashank Singh","Pathum Nissanka","Priyansh Arya","Blessing Muzarabani","Kartik Sharma"],
+  KUSH: ["Yashasvi Jaiswal","Cameron Green","Axar Patel","Kagiso Rabada","Finn Allen","Josh Hazlewood","Virat Kohli","Nitish Reddy","Sai Sudharsan","Dhruv Jurel","Nehal Wadhera","Ayush Mhatre"],
+  GAURAV: ["Shreyas Iyer","Ishan Kishan","Suryakumar Yadav","Varun Chakravarthy","Trent Boult","Dewald Brevis","Sunil Narine","Mohammed Siraj","Venkatesh Iyer","Jitesh Sharma","Washington Sundar","Sam Curran"],
+  ISHAN: ["Rishabh Pant","Rinku Singh","Rashid Khan","Hardik Pandya","Rohit Sharma","Shivam Dube","Travis Head","Tim David","Arshdeep Singh","Abishek Porel","Yuzvendra Chahal","Shimron Hetmyer"]
+};
+
+// ================= MATCHES (70) =================
+const matches = [
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/royal-challengers-bengaluru-vs-sunrisers-hyderabad-1st-match-1527674/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/mumbai-indians-vs-kolkata-knight-riders-2nd-match-1527675/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/rajasthan-royals-vs-chennai-super-kings-3rd-match-1527676/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/punjab-kings-vs-gujarat-titans-4th-match-1527677/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/lucknow-super-giants-vs-delhi-capitals-5th-match-1527678/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/kolkata-knight-riders-vs-sunrisers-hyderabad-6th-match-1527679/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/chennai-super-kings-vs-punjab-kings-7th-match-1527680/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/delhi-capitals-vs-mumbai-indians-8th-match-1527681/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/gujarat-titans-vs-rajasthan-royals-9th-match-1527682/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/sunrisers-hyderabad-vs-lucknow-super-giants-10th-match-1527683/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/royal-challengers-bengaluru-vs-chennai-super-kings-11th-match-1527684/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/kolkata-knight-riders-vs-punjab-kings-12th-match-1527685/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/rajasthan-royals-vs-mumbai-indians-13th-match-1527686/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/delhi-capitals-vs-gujarat-titans-14th-match-1527687/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/kolkata-knight-riders-vs-lucknow-super-giants-15th-match-1527688/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/rajasthan-royals-vs-royal-challengers-bengaluru-16th-match-1527689/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/punjab-kings-vs-sunrisers-hyderabad-17th-match-1527690/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/chennai-super-kings-vs-delhi-capitals-18th-match-1527691/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/lucknow-super-giants-vs-gujarat-titans-19th-match-1527692/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/mumbai-indians-vs-royal-challengers-bengaluru-20th-match-1527693/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/sunrisers-hyderabad-vs-rajasthan-royals-21st-match-1529264/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/chennai-super-kings-vs-kolkata-knight-riders-22nd-match-1529265/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/royal-challengers-bengaluru-vs-lucknow-super-giants-23rd-match-1529266/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/mumbai-indians-vs-punjab-kings-24th-match-1529267/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/gujarat-titans-vs-kolkata-knight-riders-25th-match-1529268/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/royal-challengers-bengaluru-vs-delhi-capitals-26th-match-1529269/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/sunrisers-hyderabad-vs-chennai-super-kings-27th-match-1529270/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/kolkata-knight-riders-vs-rajasthan-royals-28th-match-1529271/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/punjab-kings-vs-lucknow-super-giants-29th-match-1529272/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/gujarat-titans-vs-mumbai-indians-30th-match-1529273/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/sunrisers-hyderabad-vs-delhi-capitals-31st-match-1529274/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/lucknow-super-giants-vs-rajasthan-royals-32nd-match-1529275/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/mumbai-indians-vs-chennai-super-kings-33rd-match-1529276/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/royal-challengers-bengaluru-vs-gujarat-titans-34th-match-1529277/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/delhi-capitals-vs-punjab-kings-35th-match-1529278/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/rajasthan-royals-vs-sunrisers-hyderabad-36th-match-1529279/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/gujarat-titans-vs-chennai-super-kings-37th-match-1529280/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/lucknow-super-giants-vs-kolkata-knight-riders-38th-match-1529281/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/delhi-capitals-vs-royal-challengers-bengaluru-39th-match-1529282/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/punjab-kings-vs-rajasthan-royals-40th-match-1529283/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/mumbai-indians-vs-sunrisers-hyderabad-41st-match-1529284/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/gujarat-titans-vs-royal-challengers-bengaluru-42nd-match-1529285/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/rajasthan-royals-vs-delhi-capitals-43rd-match-1529286/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/chennai-super-kings-vs-mumbai-indians-44th-match-1529287/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/sunrisers-hyderabad-vs-kolkata-knight-riders-45th-match-1529288/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/gujarat-titans-vs-punjab-kings-46th-match-1529289/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/mumbai-indians-vs-lucknow-super-giants-47th-match-1529290/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/delhi-capitals-vs-chennai-super-kings-48th-match-1529291/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/sunrisers-hyderabad-vs-punjab-kings-49th-match-1529292/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/lucknow-super-giants-vs-royal-challengers-bengaluru-50th-match-1529293/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/delhi-capitals-vs-kolkata-knight-riders-51st-match-1529294/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/rajasthan-royals-vs-gujarat-titans-52nd-match-1529295/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/chennai-super-kings-vs-lucknow-super-giants-53rd-match-1529296/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/royal-challengers-bengaluru-vs-mumbai-indians-54th-match-1529297/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/punjab-kings-vs-delhi-capitals-55th-match-1529298/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/gujarat-titans-vs-sunrisers-hyderabad-56th-match-1529299/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/royal-challengers-bengaluru-vs-kolkata-knight-riders-57th-match-1529300/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/punjab-kings-vs-mumbai-indians-58th-match-1529301/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/lucknow-super-giants-vs-chennai-super-kings-59th-match-1529302/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/kolkata-knight-riders-vs-gujarat-titans-60th-match-1529303/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/punjab-kings-vs-royal-challengers-bengaluru-61st-match-1529304/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/delhi-capitals-vs-rajasthan-royals-62nd-match-1529305/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/chennai-super-kings-vs-sunrisers-hyderabad-63rd-match-1529306/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/rajasthan-royals-vs-lucknow-super-giants-64th-match-1529307/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/kolkata-knight-riders-vs-mumbai-indians-65th-match-1529308/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/chennai-super-kings-vs-gujarat-titans-66th-match-1529309/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/sunrisers-hyderabad-vs-royal-challengers-bengaluru-67th-match-1529310/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/lucknow-super-giants-vs-punjab-kings-68th-match-1529311/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/mumbai-indians-vs-rajasthan-royals-69th-match-1529312/full-scorecard"},
+{url:"https://www.espncricinfo.com/series/ipl-2026-1510719/kolkata-knight-riders-vs-delhi-capitals-70th-match-1529313/full-scorecard"}
+];
+
+// ===== FIXED MATCH NAME FUNCTION =====
+function getShortMatchName(url, idx){
+  try{
+    let slug = url.split("/")[url.split("/").length - 2];
+    let cleanSlug = slug.replace(/\d+(st|nd|rd|th)-match-\d+/,"");
+    let [t1, t2] = cleanSlug.split("-vs-");
+
+    t1 = t1.replace(/-/g," ").trim();
+    t2 = t2.replace(/-/g," ").trim();
+
+    const map = {
+      "royal challengers bengaluru":"RCB",
+      "sunrisers hyderabad":"SRH",
+      "mumbai indians":"MI",
+      "kolkata knight riders":"KKR",
+      "rajasthan royals":"RR",
+      "chennai super kings":"CSK",
+      "punjab kings":"PBKS",
+      "gujarat titans":"GT",
+      "lucknow super giants":"LSG",
+      "delhi capitals":"DC"
+    };
+
+    return ⁠ Match ${idx+1} - ${(map[t1]||t1.toUpperCase())} vs ${(map[t2]||t2.toUpperCase())} ⁠;
+  }catch{
+    return ⁠ Match ${idx+1} ⁠;
+  }
+}
+
+// ===== REST CODE SAME (NO CHANGE) =====
+
+let matchData = [];
+let activeTab = "leader";
+
+function clean(n){ return n.replace(/\(c\)|\+|†/g,"").trim(); }
+function normalize(n){ return n.toLowerCase().replace(/[^a-z ]/g,""); }
+
+function isSamePlayer(a,b){
+  a=normalize(a); b=normalize(b);
+  return a===b || a.split(" ").pop()===b.split(" ").pop();
+}
+
+async function fetchMatch(url){
+  let res = await fetch("https://corsproxy.io/?"+encodeURIComponent(url));
+  let html = await res.text();
+  let doc = new DOMParser().parseFromString(html,"text/html");
+
+  let data = {};
+  let allPlayers = Object.values(teams).flat();
+
+  doc.querySelectorAll("table tbody tr").forEach(r=>{
+    let c=r.querySelectorAll("td");
+    if(c.length<3) return;
+
+    let name=clean(c[0].innerText);
+    let desc=(c[1]?.innerText||"").toLowerCase();
+    let runs=parseInt(c[2]?.innerText);
+
+    if(!isNaN(runs)){
+      if(!data[name]) data[name]={bat:0,bowl:0,catch:0,runout:0};
+      data[name].bat+=runs;
+    }
+
+    let catchM = desc.match(/c\s+(.*?)\s+b/);
+    if(catchM){
+      allPlayers.forEach(p=>{
+        if(isSamePlayer(catchM[1],p)){
+          if(!data[p]) data[p]={bat:0,bowl:0,catch:0,runout:0};
+          data[p].catch+=5;
+        }
+      });
+    }
+
+    let runM = desc.match(/run out\s*\((.*?)\)/);
+    if(runM){
+      runM[1].split("/").forEach(f=>{
+        allPlayers.forEach(p=>{
+          if(isSamePlayer(f,p)){
+            if(!data[p]) data[p]={bat:0,bowl:0,catch:0,runout:0};
+            data[p].runout+=5;
+          }
+        });
+      });
+    }
+  });
+
+  doc.querySelectorAll("table").forEach(t=>{
+    if(t.innerText.toLowerCase().includes("bowling")){
+      t.querySelectorAll("tbody tr").forEach(r=>{
+        let c=r.querySelectorAll("td");
+        if(c.length<5) return;
+
+        let name=clean(c[0].innerText);
+        let w=parseInt(c[4].innerText);
+
+        if(!isNaN(w)){
+          if(!data[name]) data[name]={bat:0,bowl:0,catch:0,runout:0};
+          data[name].bowl+=w*20;
+        }
+      });
+    }
+  });
+
+  return data;
+}
+
+function getTotal(player){
+  let total=0;
+  matchData.forEach(m=>{
+    if(m.data[player]){
+      let d=m.data[player];
+      total+=d.bat+d.bowl+d.catch+d.runout+(d.bat>=100?50:0);
+    }
+  });
+  return total;
+}
+
+async function load(){
+  content.innerHTML="Loading...";
+  matchData=[];
+
+  for(let i=0;i<matches.length;i++){
+    let d=await fetchMatch(matches[i].url);
+    matchData.push({url:matches[i].url,data:d});
+  }
+
+  render();
+}
+
+function switchTab(tab){ activeTab=tab; render(); }
+
+function toggle(id){
+  let el=document.getElementById(id);
+  el.style.display = el.style.display==="none"?"block":"none";
+}
+
+function renderLeader(){
+
+  let arr=[];
+
+  for(let t in teams){
+    let total=0;
+    teams[t].forEach(p=> total+=getTotal(p));
+    arr.push({team:t,total});
+  }
+
+  arr.sort((a,b)=>b.total-a.total);
+
+  let html="";
+
+  arr.forEach((t,i)=>{
+
+    html+=`
+    <div class="card">
+      <div onclick="toggle('team${i}')" style="cursor:pointer;font-weight:bold;">
+        #${i+1} ${t.team} — ${t.total} ⬇️
+      </div>
+
+      <div id="team${i}" style="display:none;margin-top:10px;">
+    `;
+
+    let players=[];
+    teams[t.team].forEach(p=>{
+      players.push({name:p,total:getTotal(p)});
+    });
+
+    players.sort((a,b)=>b.total-a.total);
+
+    players.forEach(p=>{
+      html+=`
+      <div style="display:flex;justify-content:space-between;">
+        <span>${p.name}</span>
+        <span>${p.total}</span>
+      </div>`;
+    });
+
+    html+=⁠ </div></div> ⁠;
+  });
+
+  content.innerHTML=html;
+}
+
+function renderMatches(){
+
+  let html="";
+
+  matchData.forEach((m,i)=>{
+
+    html+=`
+    <div class="card">
+      <div onclick="toggle('m${i}')" style="cursor:pointer;font-weight:bold;">
+        ${getShortMatchName(m.url,i)} ⬇️
+      </div>
+
+      <div id="m${i}" style="display:none;">
+      <table>
+      <tr>
+        <th>Player</th><th>Bat</th><th>Bowl</th>
+        <th>Catch</th><th>Runout</th><th>Total</th>
+      </tr>`;
+
+    let players=[];
+    Object.values(teams).flat().forEach(p=>{
+      let d=m.data[p];
+      if(!d) return;
+
+      let total=d.bat+d.bowl+d.catch+d.runout+(d.bat>=100?50:0);
+      players.push({name:p,...d,total});
+    });
+
+    players.sort((a,b)=>b.total-a.total);
+
+    players.forEach(p=>{
+      html+=`<tr>
+        <td>${p.name}</td>
+        <td>${p.bat}</td>
+        <td>${p.bowl}</td>
+        <td>${p.catch}</td>
+        <td>${p.runout}</td>
+        <td><b>${p.total}</b></td>
+      </tr>`;
+    });
+
+    html+=⁠ </table></div></div> ⁠;
+  });
+
+  content.innerHTML=html;
+}
+
+function render(){
+  if(activeTab==="leader") renderLeader();
+  else renderMatches();
+}
+
+</script>
+</body>
+</html>
