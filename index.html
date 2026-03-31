@@ -43,6 +43,7 @@ button {
 <div class="tabs">
   <div class="tab active" id="tab-leader" onclick="switchTab('leader')">🏆 Leaderboard</div>
   <div class="tab" id="tab-matches" onclick="switchTab('matches')">📊 Matches</div>
+  <div class="tab" id="tab-players" onclick="switchTab('players')">👤 Players</div>
 </div>
 
 <div id="content"></div>
@@ -53,7 +54,7 @@ const teams = {
   SANKET: ["Sanju Samson","Quinton de Kock","Rajat Patidar","Ravindra Jadeja","Heinrich Klaasen","Mitchell Marsh","Angkrish Raghuvanshi","Ajinkya Rahane","Kuldeep Yadav","Nicholas Pooran","Prabhsimran Singh","Ravi Sai Kishore"],
   HARSHIT: ["Riyan Parag","Tilak Varma","Devdutt Padikkal","Krunal Pandya","Deepak Chahar","Tristan Stubbs","Jos Buttler","Abhishek Sharma","Aiden Markram","Vaibhav Suryavanshi","Harshal Patel","Marco Jansen"],
   RAJ: ["Jasprit Bumrah","KL Rahul","Shubman Gill","Mohammed Shami","Marcus Stoinis","Ruturaj Gaikwad","Phil Salt","Shashank Singh","Pathum Nissanka","Priyansh Arya","Blessing Muzarabani","Kartik Sharma"],
-  KUSH: ["Yashasvi Jaiswal","Cameron Green","Axar Patel","Kagiso Rabada","Finn Allen","Josh Hazlewood","Virat Kohli","Nitish Reddy","Sai Sudharsan","Dhruv Jurel","Nehal Wadhera","Ayush Mhatre"],
+  KUSH: ["Yashasvi Jaiswal","Cameron Green","Axar Patel","Kagiso Rabada","Finn Allen","Josh Hazlewood","Virat Kohli","Nitish Kumar Reddy","Sai Sudharsan","Dhruv Jurel","Nehal Wadhera","Ayush Mhatre"],
   GAURAV: ["Shreyas Iyer","Ishan Kishan","Suryakumar Yadav","Varun Chakravarthy","Trent Boult","Dewald Brevis","Sunil Narine","Mohammed Siraj","Venkatesh Iyer","Jitesh Sharma","Washington Sundar","Sam Curran"],
   ISHAN: ["Rishabh Pant","Rinku Singh","Rashid Khan","Hardik Pandya","Rohit Sharma","Shivam Dube","Travis Head","Tim David","Arshdeep Singh","Abishek Porel","Yuzvendra Chahal","Shimron Hetmyer"]
 };
@@ -170,7 +171,7 @@ function isSamePlayer(a, b) {
 async function fetchMatch(url) {
   let html = null;
   try {
-    let res = await fetch("https://overpowering-stephania-unbranded.ngrok-free.dev/fetch?url=" + encodeURIComponent(url), {headers: {"ngrok-skip-browser-warning": "true"}});
+    let res = await fetch("https://focusing-supported-retrieve-centered.trycloudflare.com/fetch?url=" + encodeURIComponent(url));
     if (res.ok) html = await res.text();
   } catch(e) {
     console.error("Proxy error:", e);
@@ -248,6 +249,21 @@ function getTotal(player) {
   return total;
 }
 
+function getPlayerStats(player) {
+  let bat = 0, bowl = 0, catch_ = 0, runout = 0;
+  matchData.forEach(m => {
+    if (m.data[player]) {
+      let d = m.data[player];
+      bat += d.bat;
+      bowl += d.bowl;
+      catch_ += d.catch;
+      runout += d.runout;
+      if (d.bat >= 100) bat += 50; // century bonus included in bat display
+    }
+  });
+  return { bat, bowl, catch: catch_, runout };
+}
+
 async function load() {
   matchData = [];
   document.getElementById("content").innerHTML = "";
@@ -267,6 +283,7 @@ function switchTab(tab) {
   activeTab = tab;
   document.getElementById("tab-leader").className = "tab" + (tab === "leader" ? " active" : "");
   document.getElementById("tab-matches").className = "tab" + (tab === "matches" ? " active" : "");
+  document.getElementById("tab-players").className = "tab" + (tab === "players" ? " active" : "");
   render();
 }
 
@@ -337,13 +354,47 @@ function renderMatches() {
   document.getElementById("content").innerHTML = html;
 }
 
+function renderPlayers() {
+  // Build a flat list of all players with their team and stats
+  let allPlayers = [];
+  for (let team in teams) {
+    teams[team].forEach(p => {
+      let stats = getPlayerStats(p);
+      let total = getTotal(p);
+      allPlayers.push({ name: p, team, total, ...stats });
+    });
+  }
+  allPlayers.sort((a, b) => b.total - a.total);
+
+  let html = "<div class='card'>";
+  html += "<table>";
+  html += "<tr><th>#</th><th>Player</th><th>Team</th><th>Bat</th><th>Bowl</th><th>Ctch</th><th>RO</th><th>Total</th></tr>";
+
+  allPlayers.forEach((p, i) => {
+    html += "<tr>";
+    html += "<td>" + (i+1) + "</td>";
+    html += "<td>" + p.name + "</td>";
+    html += "<td>" + p.team + "</td>";
+    html += "<td>" + p.bat + "</td>";
+    html += "<td>" + p.bowl + "</td>";
+    html += "<td>" + p.catch + "</td>";
+    html += "<td>" + p.runout + "</td>";
+    html += "<td><b>" + p.total + "</b></td>";
+    html += "</tr>";
+  });
+
+  html += "</table></div>";
+  document.getElementById("content").innerHTML = html;
+}
+
 function render() {
   if (matchData.length === 0) {
     document.getElementById("content").innerHTML = '<div style="text-align:center;color:#94a3b8;margin-top:30px;">Press 🔄 Update to load scores</div>';
     return;
   }
   if (activeTab === "leader") renderLeader();
-  else renderMatches();
+  else if (activeTab === "matches") renderMatches();
+  else renderPlayers();
 }
 
 render();
