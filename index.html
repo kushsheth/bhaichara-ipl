@@ -52,7 +52,7 @@ button {
 
 const teams = {
   SANKET: ["Sanju Samson","Quinton de Kock","Rajat Patidar","Ravindra Jadeja","Heinrich Klaasen","Mitchell Marsh","Angkrish Raghuvanshi","Ajinkya Rahane","Kuldeep Yadav","Nicholas Pooran","Prabhsimran Singh","Ravi Sai Kishore"],
-  HARSHIT: ["Riyan Parag","Tilak Varma","Devdutt Padikkal","Krunal Pandya","Deepak Chahar","Tristan Stubbs","Jos Buttler","Abhishek Sharma","Aiden Markram","Vaibhav Sooryavanshi","Harshal Patel","Marco Jansen"],
+  HARSHIT: ["Riyan Parag","Tilak Varma","Devdutt Padikkal","Krunal Pandya","Deepak Chahar","Tristan Stubbs","Jos Buttler","Abhishek Sharma","Aiden Markram","Vaibhav Suryavanshi","Harshal Patel","Marco Jansen"],
   RAJ: ["Jasprit Bumrah","KL Rahul","Shubman Gill","Mohammed Shami","Marcus Stoinis","Ruturaj Gaikwad","Phil Salt","Shashank Singh","Pathum Nissanka","Priyansh Arya","Blessing Muzarabani","Kartik Sharma"],
   KUSH: ["Yashasvi Jaiswal","Cameron Green","Axar Patel","Kagiso Rabada","Finn Allen","Josh Hazlewood","Virat Kohli","Nitish Kumar Reddy","Sai Sudharsan","Dhruv Jurel","Nehal Wadhera","Ayush Mhatre"],
   GAURAV: ["Shreyas Iyer","Ishan Kishan","Suryakumar Yadav","Varun Chakravarthy","Trent Boult","Dewald Brevis","Sunil Narine","Mohammed Siraj","Venkatesh Iyer","Jitesh Sharma","Washington Sundar","Sam Curran"],
@@ -166,21 +166,23 @@ function normalize(n) { return n.toLowerCase().replace(/[^a-z ]/g, ""); }
 function isSamePlayer(a, b) {
   a = normalize(a); b = normalize(b);
   if (a === b) return true;
-  // Only match on last name if last name is unique enough (more than 4 chars)
-  let aLast = a.split(" ").pop();
-  let bLast = b.split(" ").pop();
-  if (aLast.length <= 4 || bLast.length <= 4) return false;
-  if (aLast !== bLast) return false;
-  // If last names match, also check first name initial
-  let aFirst = a.split(" ")[0];
-  let bFirst = b.split(" ")[0];
-  return aFirst[0] === bFirst[0];
+  let aWords = a.split(" ");
+  let bWords = b.split(" ");
+  let aLast = aWords[aWords.length - 1];
+  let bLast = bWords[bWords.length - 1];
+  // Last names must match and be longer than 4 chars
+  if (aLast !== bLast || aLast.length <= 4) return false;
+  // Special case: common surnames like singh, kumar, sharma need full name match
+  const commonSurnames = ["singh", "kumar", "sharma", "patel", "khan", "yadav", "reddy", "iyer"];
+  if (commonSurnames.includes(aLast)) return a === b;
+  // For unique surnames, last name match is sufficient
+  return true;
 }
 
 async function fetchMatch(url) {
   let html = null;
   try {
-    let res = await fetch("https://gage-pike-let-disclaimers.trycloudflare.com/fetch?url=" + encodeURIComponent(url));
+    let res = await fetch("https://focusing-supported-retrieve-centered.trycloudflare.com/fetch?url=" + encodeURIComponent(url));
     if (res.ok) html = await res.text();
   } catch(e) {
     console.error("Proxy error:", e);
