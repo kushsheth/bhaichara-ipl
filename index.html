@@ -269,7 +269,6 @@ function getPlayerStats(player) {
       bowl += d.bowl;
       catch_ += d.catch;
       runout += d.runout;
-      if (d.bat >= 100) bat += 50; // century bonus included in bat display
     }
   });
   return { bat, bowl, catch: catch_, runout };
