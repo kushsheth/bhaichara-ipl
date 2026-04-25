@@ -254,7 +254,7 @@ function getTotal(player) {
   matchData.forEach(m => {
     if (m.data[player]) {
       let d = m.data[player];
-      total += d.bat + d.bowl + d.catch + d.runout + (d.bat >= 100 ? 50 : 0);
+      total += d.bat + d.bowl + d.catch + d.runout;
     }
   });
   return total;
