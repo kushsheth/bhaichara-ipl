@@ -129,7 +129,9 @@ const matches = [
   {url:"https://www.espncricinfo.com/series/ipl-2026-1510719/sunrisers-hyderabad-vs-royal-challengers-bengaluru-67th-match-1529310/full-scorecard"},
   {url:"https://www.espncricinfo.com/series/ipl-2026-1510719/lucknow-super-giants-vs-punjab-kings-68th-match-1529311/full-scorecard"},
   {url:"https://www.espncricinfo.com/series/ipl-2026-1510719/mumbai-indians-vs-rajasthan-royals-69th-match-1529312/full-scorecard"},
-  {url:"https://www.espncricinfo.com/series/ipl-2026-1510719/kolkata-knight-riders-vs-delhi-capitals-70th-match-1529313/full-scorecard"}
+  {url:"https://www.espncricinfo.com/series/ipl-2026-1510719/kolkata-knight-riders-vs-delhi-capitals-70th-match-1529313/full-scorecard"},
+  {url:"https://www.espncricinfo.com/series/ipl-2026-1510719/royal-challengers-bengaluru-vs-gujarat-titans-qualifier-1-1535462/full-scorecard"},
+  {url:"https://www.espncricinfo.com/series/ipl-2026-1510719/rajasthan-royals-vs-sunrisers-hyderabad-eliminator-1535463/full-scorecard"}
 ];
 
 function getShortMatchName(url, idx) {
@@ -182,7 +184,7 @@ function isSamePlayer(a, b) {
 async function fetchMatch(url) {
   let html = null;
   try {
-    let res = await fetch("https://dive-asking-announces-tennessee.trycloudflare.com/fetch?url=" + encodeURIComponent(url));
+    let res = await fetch("https://commissioner-psychology-reviewer-richard.trycloudflare.com/fetch?url=" + encodeURIComponent(url));
     if (res.ok) html = await res.text();
   } catch(e) {
     console.error("Proxy error:", e);
