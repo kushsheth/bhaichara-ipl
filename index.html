@@ -130,18 +130,31 @@ const matches = [
   {url:"https://www.espncricinfo.com/series/ipl-2026-1510719/lucknow-super-giants-vs-punjab-kings-68th-match-1529311/full-scorecard"},
   {url:"https://www.espncricinfo.com/series/ipl-2026-1510719/mumbai-indians-vs-rajasthan-royals-69th-match-1529312/full-scorecard"},
   {url:"https://www.espncricinfo.com/series/ipl-2026-1510719/kolkata-knight-riders-vs-delhi-capitals-70th-match-1529313/full-scorecard"},
-//  {url:"https://www.espncricinfo.com/series/ipl-2026-1510719/royal-challengers-bengaluru-vs-gujarat-titans-qualifier-1-1535462/full-scorecard"},
-// {url:"https://www.espncricinfo.com/series/ipl-2026-1510719/rajasthan-royals-vs-sunrisers-hyderabad-eliminator-1535463/full-scorecard"}
+  {url:"https://www.espncricinfo.com/series/ipl-2026-1510719/royal-challengers-bengaluru-vs-gujarat-titans-qualifier-1-1535462/full-scorecard"},
+  {url:"https://www.espncricinfo.com/series/ipl-2026-1510719/rajasthan-royals-vs-sunrisers-hyderabad-eliminator-1535463/full-scorecard"},
+  {url:"https://www.espncricinfo.com/series/ipl-2026-1510719/gujarat-titans-vs-rajasthan-royals-qualifier-2-1535464/full-scorecard"},
+  {url:"https://www.espncricinfo.com/series/ipl-2026-1510719/royal-challengers-bengaluru-vs-gujarat-titans-final-1535465/full-scorecard"}
 ];
 
 function getShortMatchName(url, idx) {
   try {
     let parts = url.split("/");
     let slug = parts[parts.length - 2];
-    let cleanSlug = slug.replace(/\d+(st|nd|rd|th)-match-\d+/, "");
+
+    // Remove trailing match ID number
+    let cleanSlug = slug.replace(/-\d+$/, "");
+
+    // Handle playoff format: "team-a-vs-team-b-qualifier-1", "...-eliminator", "...-final"
+    // Handle regular format: "team-a-vs-team-b-Nth-match"
+    // Strip known suffixes after "vs-teamname"
+    cleanSlug = cleanSlug
+      .replace(/-\d+(st|nd|rd|th)-match$/, "")
+      .replace(/-(qualifier-\d+|eliminator|final|qualifier)$/, "");
+
     let sides = cleanSlug.split("-vs-");
     let t1 = sides[0].replace(/-/g, " ").trim();
     let t2 = sides[1].replace(/-/g, " ").trim();
+
     const map = {
       "royal challengers bengaluru": "RCB",
       "sunrisers hyderabad": "SRH",
@@ -154,7 +167,18 @@ function getShortMatchName(url, idx) {
       "lucknow super giants": "LSG",
       "delhi capitals": "DC"
     };
-    return "Match " + (idx + 1) + " - " + (map[t1] || t1.toUpperCase()) + " vs " + (map[t2] || t2.toUpperCase());
+
+    // Use a label for playoffs vs regular matches
+    const playoffLabels = {
+      "qualifier-1": "Q1", "qualifier-2": "Q2",
+      "eliminator": "EL", "final": "Final"
+    };
+    let playoffMatch = slug.match(/-(qualifier-\d+|eliminator|final)-\d+$/);
+    let label = playoffMatch
+      ? (playoffLabels[playoffMatch[1]] || playoffMatch[1].toUpperCase())
+      : "Match " + (idx + 1);
+
+    return label + " - " + (map[t1] || t1.toUpperCase()) + " vs " + (map[t2] || t2.toUpperCase());
   } catch(e) {
     return "Match " + (idx + 1);
   }
